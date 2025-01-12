@@ -11,6 +11,7 @@ use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\PeriodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,6 +123,17 @@ Route::group([
         'prefix' => 'hasil_akhir'
     ], function () {
         Route::get('/', [PenilaianController::class, 'hasil_akhir'])->name('penilaian.hasil_akhir');
+    });
+
+    Route::group([
+        'prefix' => 'periode'
+    ], function () {
+        Route::get('/', [PeriodeController::class, 'index'])->name('periode');
+        Route::post('/simpan', [PeriodeController::class, 'simpan'])->name('periode.simpan');
+        Route::get('/ubah', [PeriodeController::class, 'ubah'])->name('periode.ubah');
+        Route::post('/ubah', [PeriodeController::class, 'perbarui'])->name('periode.perbarui');
+        Route::post('/hapus', [PeriodeController::class, 'hapus'])->name('periode.hapus');
+        Route::post('/import', [PeriodeController::class, 'import'])->name('periode.import');
     });
 });
 
