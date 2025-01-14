@@ -3,7 +3,7 @@
 @section('container')
     <div class="container px-6 mx-auto grid">
         <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-            {{ $judul }}
+            {{ $judul }} Periode {{ $current_yearmonth }}
         </h2>
     </div>
 
@@ -54,12 +54,12 @@
                                 @foreach ($data->unique('alternatif_id') as $item)
                                     <tr class="border-b dark:border-gray-700">
                                         <td class="px-4 py-3 text-gray-700 dark:text-gray-400 uppercase font-semibold">
-                                            {{ $item->alternatif->nama }}
+                                            {{ $item->alternatif_nama }}
                                             <a href="{{ route('penilaian.ubah', ['alternatif_id' => $item->alternatif_id]) }}" class="ml-1"><i class="ri-pencil-fill text-yellow-500"></i></a>
                                         </td>
                                         @foreach ($data->where('alternatif_id', $item->alternatif_id) as $value)
                                             @if ($value->sub_kriteria_id != null)
-                                                <td class="px-4 py-3 text-lg">{{ $value->subKriteria->kategori->nama }}</td>
+                                                <td class="px-4 py-3 text-lg">{{ $value->kategori_nama }}</td>
                                             @else
                                                 <td class="px-4 py-3 text-lg">-</td>
                                             @endif

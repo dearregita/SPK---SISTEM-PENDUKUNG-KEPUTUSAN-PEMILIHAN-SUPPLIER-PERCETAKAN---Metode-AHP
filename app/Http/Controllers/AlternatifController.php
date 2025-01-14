@@ -5,22 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\AlternatifRequest;
 use App\Http\Services\AlternatifService;
+use App\Http\Services\PeriodeService;
 
 class AlternatifController extends Controller
 {
-    protected $alternatifService;
+    protected $alternatifService, $periodeService;
 
-    public function __construct(AlternatifService $alternatifService)
+    public function __construct(AlternatifService $alternatifService, PeriodeService $periodeService)
     {
         $this->alternatifService = $alternatifService;
+        $this->periodeService = $periodeService;
     }
 
     public function index()
     {
         $judul = 'Alternatif';
         $data = $this->alternatifService->getAll();
+        $periode = $this->periodeService->getAll();
 
-        return view('dashboard.alternatif.index', compact('judul', 'data'));
+        return view('dashboard.alternatif.index', compact('judul', 'data', 'periode'));
     }
 
     public function simpan(AlternatifRequest $request)

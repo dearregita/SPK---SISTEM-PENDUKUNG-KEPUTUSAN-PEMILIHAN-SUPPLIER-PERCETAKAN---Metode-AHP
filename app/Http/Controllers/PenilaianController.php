@@ -43,10 +43,15 @@ class PenilaianController extends Controller
         }
 
         $data = $this->penilaianService->getAll();
+        $arr_data = $data->toArray();
         $kategori = $this->kategoriService->getAll();
+
+        $current_yearmonth = Carbon::now()->format("Ym");
         $hasil = DB::table('hasil_solusi_ahp as hsa')
             ->join('alternatif as a', 'a.id', '=', 'hsa.alternatif_id')
+            ->join('periode as p', 'a.periode_id', 'p.id')
             ->select('hsa.*', 'a.nama as nama_alternatif')
+            ->whereRaw('concat(p.tahun,p.bulan) = "' . $current_yearmonth . '"')
             ->get();
 
         return view('dashboard.penilaian.index', [
@@ -57,6 +62,7 @@ class PenilaianController extends Controller
             'matriksNilaiKriteria' => $matriksNilaiKriteria,
             'matriksNilaiSubKriteria' => $matriksNilaiSubKriteria,
             'hasil' => $hasil,
+            'current_yearmonth' => $arr_data[0]->string_bulan . ' ' . $arr_data[0]->tahun
         ]);
     }
 
@@ -94,12 +100,14 @@ class PenilaianController extends Controller
         $matriksNilaiSubKriteria = DB::table('matriks_nilai_prioritas_kriteria')->get();
 
         // $data = [];
-        DB::table('hasil_solusi_ahp')->truncate();
+        $alternatif_ids = $penilaian->unique('alternatif_id')->pluck('alternatif_id');
+        DB::table('hasil_solusi_ahp')->whereIn('alternatif_id', $alternatif_ids)->delete();
+
         foreach($penilaian->unique('alternatif_id') as $item) {
             $nilai = 0;
             foreach($penilaian->where('alternatif_id', $item->alternatif_id) as $value) {
                 $kriteria = $matriksNilaiKriteria->where('kriteria_id', $value->kriteria_id)->first()->prioritas;
-                $subKriteria = $matriksNilaiSubKriteria->where('kriteria_id', $value->kriteria_id)->where('kategori_id', $value->subKriteria->kategori->id)->first();
+                $subKriteria = $matriksNilaiSubKriteria->where('kriteria_id', $value->kriteria_id)->where('kategori_id', $value->kategori_id)->first();
                 $nilai += $kriteria * $subKriteria->prioritas;
 
                 // $data[] = [
@@ -133,9 +141,13 @@ class PenilaianController extends Controller
     public function hasil_akhir()
     {
         $judul = 'Hasil Akhir';
+        $current_yearmonth = Carbon::now()->format("Ym");
+
         $hasil = DB::table('hasil_solusi_ahp as hsa')
             ->join('alternatif as a', 'a.id', '=', 'hsa.alternatif_id')
+            ->join('periode as p', 'a.periode_id', 'p.id')
             ->select('hsa.*', 'a.nama as nama_alternatif')
+            ->whereRaw('concat(p.tahun,p.bulan) = "' . $current_yearmonth . '"')
             ->orderBy('hsa.nilai', 'desc')
             ->get();
         return view('dashboard.penilaian.hasil', [
@@ -164,10 +176,15 @@ class PenilaianController extends Controller
         }
 
         $data = $this->penilaianService->getAll();
+        $arr_data = $data->toArray();
         $kategori = $this->kategoriService->getAll();
+
+        $current_yearmonth = Carbon::now()->format("Ym");
         $hasil = DB::table('hasil_solusi_ahp as hsa')
             ->join('alternatif as a', 'a.id', '=', 'hsa.alternatif_id')
+            ->join('periode as p', 'a.periode_id', 'p.id')
             ->select('hsa.*', 'a.nama as nama_alternatif')
+            ->whereRaw('concat(p.tahun,p.bulan) = "' . $current_yearmonth . '"')
             ->get();
 
         $pdf = PDF::setOptions(['defaultFont' => 'sans-serif'])->loadview('dashboard.pdf.penilaian', [
@@ -178,6 +195,7 @@ class PenilaianController extends Controller
             'matriksNilaiKriteria' => $matriksNilaiKriteria,
             'matriksNilaiSubKriteria' => $matriksNilaiSubKriteria,
             'hasil' => $hasil,
+            'current_yearmonth' => $arr_data[0]->string_bulan . ' ' . $arr_data[0]->tahun,
         ]);
 
         // return $pdf->download('laporan-penilaian.pdf');

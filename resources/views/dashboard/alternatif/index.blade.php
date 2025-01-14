@@ -29,6 +29,7 @@
                         <table id="tabel_data" class="w-full text-sm text-left text-gray-500 dark:text-gray-400 stripe hover" style="width:100%; padding-top: 1em; padding-bottom: 1em;">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
+                                    <th scope="col" class="px-4 py-3">Periode</th>
                                     <th scope="col" class="px-4 py-3">Nama</th>
                                     <th scope="col" class="px-4 py-3">Aksi</th>
                                 </tr>
@@ -36,6 +37,7 @@
                             <tbody>
                                 @foreach ($data as $item)
                                     <tr class="border-b dark:border-gray-700">
+                                        <td class="px-4 py-3">{{ $item->string_bulan }} {{ $item->tahun }}</td>
                                         <td class="px-4 py-3">{{ $item->nama }}</td>
                                         <td class="px-4 py-3">
                                             <label for="edit_button" class="btn btn-sm btn-warning text-white" onclick="return edit_button('{{ $item->id }}')">
@@ -60,6 +62,22 @@
                     <form action="{{ route('alternatif.simpan') }}" method="post" enctype="multipart/form-data">
                         <h3 class="font-bold text-lg">Tambah {{ $judul }}</h3>
                             @csrf
+                            <div class="form-control w-full max-w-xs">
+                                <label class="label">
+                                    <span class="label-text">Periode</span>
+                                </label>
+                                <select name="periode_id" class="select select-bordered" required>
+                                    <option disabled selected>Pilih Periode!</option>
+                                    @foreach ($periode as $value)
+                                        <option value="{{ $value->id }}">{{ $value->string_bulan }} {{$value->tahun}}</option>
+                                    @endforeach
+                                </select>
+                                <label class="label">
+                                    @error('periode_id')
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    @enderror
+                                </label>
+                            </div>
                             <div class="form-control w-full max-w-xs">
                                 <label class="label">
                                     <span class="label-text">Nama</span>
@@ -88,6 +106,23 @@
                         <h3 class="font-bold text-lg">Ubah {{ $judul }}: <span class="text-greenPrimary" id="title_form"><span class="loading loading-dots loading-md"></span></span></h3>
                             @csrf
                             <input type="text" name="id" hidden />
+                            <div class="form-control w-full max-w-xs">
+                                <label class="label">
+                                    <span class="label-text">Periode</span>
+                                    <span class="label-text-alt" id="loading_edit1"></span>
+                                </label>
+                                <select name="periode_id" class="select select-bordered" required>
+                                    <option disabled selected>Pilih Periode!</option>
+                                    @foreach ($periode as $value)
+                                        <option value="{{ $value->id }}">{{ $value->string_bulan }} {{$value->tahun}}</option>
+                                    @endforeach
+                                </select>
+                                <label class="label">
+                                    @error('nama')
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    @enderror
+                                </label>
+                            </div>
                             <div class="form-control w-full max-w-xs">
                                 <label class="label">
                                     <span class="label-text">Nama</span>
@@ -199,10 +234,12 @@
                     $.each(data, function(key, val) {
                         items.push(val);
                     });
+                    console.log(items);
 
-                    $("#title_form").html(`${items[1]}`);
+                    $("#title_form").html(`${items[4]} ${items[2]} - ${items[5]}`);
                     $("input[name='id']").val(items[0]);
-                    $("input[name='nama']").val(items[1]);
+                    $("select[name='periode_id']").val(items[1]);
+                    $("input[name='nama']").val(items[5]);
 
                     // Loading effect end
                     loading = "";

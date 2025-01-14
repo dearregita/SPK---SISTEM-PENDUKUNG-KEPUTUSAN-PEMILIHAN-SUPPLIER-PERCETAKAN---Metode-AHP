@@ -23,7 +23,33 @@ class AlternatifRepository
 
     public function getAll()
     {
-        $data = $this->alternatif->orderBy('created_at', 'asc')->get();
+        $data = DB::table('alternatif as a')
+            ->join('periode as p', 'a.periode_id', 'p.id')
+            ->select(DB::raw('
+                a.id,
+                p.tahun,
+                p.bulan,
+                CASE p.bulan 
+                    WHEN 01 THEN "Januari"
+                    WHEN 02 THEN "Februari"
+                    WHEN 03 THEN "Maret"
+                    WHEN 04 THEN "April"
+                    WHEN 05 THEN "Mei"
+                    WHEN 06 THEN "Juni"
+                    WHEN 07 THEN "Juli"
+                    WHEN 08 THEN "Agustus"
+                    WHEN 09 THEN "September"
+                    WHEN 10 THEN "Oktober"
+                    WHEN 11 THEN "November"
+                    WHEN 12 THEN "Desember"
+                END as string_bulan,
+                concat(p.tahun,p.bulan) tahun_bulan,
+                a.nama
+            '))
+            ->orderByRaw('concat(p.tahun,p.bulan) DESC')
+            ->orderBy('a.created_at', 'ASC')
+            ->get();
+
         return $data;
     }
 
@@ -75,13 +101,38 @@ class AlternatifRepository
 
     public function getDataById($id)
     {
-        $data = $this->alternatif->where('id', $id)->firstOrFail();
+        $data = DB::table('alternatif as a')
+            ->join('periode as p', 'a.periode_id', 'p.id')
+            ->select(DB::raw('
+                a.id,
+                a.periode_id,
+                p.tahun,
+                p.bulan,
+                CASE p.bulan 
+                    WHEN 01 THEN "Januari"
+                    WHEN 02 THEN "Februari"
+                    WHEN 03 THEN "Maret"
+                    WHEN 04 THEN "April"
+                    WHEN 05 THEN "Mei"
+                    WHEN 06 THEN "Juni"
+                    WHEN 07 THEN "Juli"
+                    WHEN 08 THEN "Agustus"
+                    WHEN 09 THEN "September"
+                    WHEN 10 THEN "Oktober"
+                    WHEN 11 THEN "November"
+                    WHEN 12 THEN "Desember"
+                END as string_bulan,
+                a.nama
+            '))
+            ->where('a.id', $id)
+            ->first();
         return $data;
     }
 
     public function perbarui($id, $data)
     {
         $data = $this->alternatif->where('id', $id)->update([
+            "periode_id" => $data['periode_id'],
             "nama" => $data['nama'],
         ]);
         return $data;

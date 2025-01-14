@@ -24,6 +24,7 @@ class AlternatifRequest extends FormRequest
     public function rules()
     {
         return [
+            "periode_id" => "required",
             "nama" => "required|string|max:255",
         ];
     }

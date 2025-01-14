@@ -15,6 +15,7 @@ class Alternatif extends Model
     // protected $keyType = "string";
     public $timestamps = "true";
     protected $fillable = [
+        "periode_id",
         "nama",
     ];
 }
