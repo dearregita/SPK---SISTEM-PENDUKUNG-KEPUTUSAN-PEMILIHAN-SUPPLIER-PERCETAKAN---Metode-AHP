@@ -11,24 +11,37 @@
         <section class="mt-3">
             <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
                 <div class="mb-7 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-                    <div class="flex justify-between items-center d p-4 mb-5">
+                    <div class="flex justify-between items-center d p-4 mb-1">
                         <div class="flex space-x-3">
                             <div class="flex space-x-3 items-center">
                                 <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Perhitungan</h2>
-                                <form action="{{ route('penilaian.pdf_hasil') }}" method="post" enctype="multipart/form-data" target="_blank">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm text-white dark:text-gray-800 normal-case bg-rose-600 hover:bg-rose-600 hover:bg-opacity-70 hover:border-opacity-70 dark:bg-rose-300 dark:hover:bg-rose-300 dark:hover:bg-opacity-90 dark:border-rose-300">
-                                        <i class="ri-file-pdf-line"></i>
-                                        Export PDF
-                                    </button>
-                                </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="flex justify-between items-center d p-4 mb-5">
+                        <form action="{{ route('penilaian.pdf_hasil') }}" method="post" enctype="multipart/form-data" target="_blank">
+                            @csrf    
+                            <div class="flex space-x-3 items-center">
+                                <div>
+                                    <select name="periode_id" class="select select-bordered" required>
+                                        <option disabled selected>Pilih Periode!</option>
+                                        @foreach ($periode as $value)
+                                            <option value="{{ $value->id }}">{{ $value->string_bulan }} {{$value->tahun}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn text-white dark:text-gray-800 normal-case bg-rose-600 hover:bg-rose-600 hover:bg-opacity-70 hover:border-opacity-70 dark:bg-rose-300 dark:hover:bg-rose-300 dark:hover:bg-opacity-90 dark:border-rose-300">
+                                    <i class="ri-file-pdf-line"></i>
+                                    Export PDF
+                                </button>
+                            </div>
+                        </form>
                     </div>
                     <div class="overflow-x-auto p-3">
                         <table id="tabel_data_hasil" class="nowrap w-full text-sm text-left text-gray-500 dark:text-gray-400 stripe hover" style="width:100%; padding-top: 1em; padding-bottom: 1em;">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
+                                    <th scope="col" class="px-4 py-3">Periode</th>
                                     <th scope="col" class="px-4 py-3">Alternatif</th>
                                     <th scope="col" class="px-4 py-3">Nilai</th>
                                 </tr>
@@ -36,6 +49,9 @@
                             <tbody>
                                 @foreach ($hasil as $item)
                                     <tr class="border-b dark:border-gray-700">
+                                        <td class="px-4 py-3 text-gray-700 dark:text-gray-400 uppercase font-semibold">
+                                            {{ $item->string_bulan }} {{ $item->tahun }}
+                                        </td>
                                         <td class="px-4 py-3 text-gray-700 dark:text-gray-400 uppercase font-semibold">
                                             {{ $item->nama_alternatif }}
                                         </td>
@@ -57,7 +73,7 @@
     <script>
         $(document).ready(function() {
             $('#tabel_data_hasil').DataTable({
-                scrollX: true,
+                responsive: true,
                 ordering: false,
             })
             .columns.adjust()

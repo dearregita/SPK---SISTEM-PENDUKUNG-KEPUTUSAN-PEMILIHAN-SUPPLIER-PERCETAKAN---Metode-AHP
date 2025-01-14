@@ -10,17 +10,19 @@ use App\Http\Services\KategoriService;
 use App\Http\Services\KriteriaService;
 use App\Http\Services\PenilaianService;
 use App\Http\Services\SubKriteriaService;
+use App\Http\Services\PeriodeService;
 
 class PenilaianController extends Controller
 {
-    protected $penilaianService, $kriteriaService, $subKriteriaService, $kategoriService;
+    protected $penilaianService, $kriteriaService, $subKriteriaService, $kategoriService, $periodeService;
 
-    public function __construct(PenilaianService $penilaianService, KriteriaService $kriteriaService, SubKriteriaService $subKriteriaService, KategoriService $kategoriService)
+    public function __construct(PenilaianService $penilaianService, KriteriaService $kriteriaService, SubKriteriaService $subKriteriaService, KategoriService $kategoriService, PeriodeService $periodeService)
     {
         $this->penilaianService = $penilaianService;
         $this->kriteriaService = $kriteriaService;
         $this->subKriteriaService = $subKriteriaService;
         $this->kategoriService = $kategoriService;
+        $this->periodeService = $periodeService;
     }
 
     public function index()
@@ -141,18 +143,39 @@ class PenilaianController extends Controller
     public function hasil_akhir()
     {
         $judul = 'Hasil Akhir';
-        $current_yearmonth = Carbon::now()->format("Ym");
 
         $hasil = DB::table('hasil_solusi_ahp as hsa')
             ->join('alternatif as a', 'a.id', '=', 'hsa.alternatif_id')
             ->join('periode as p', 'a.periode_id', 'p.id')
-            ->select('hsa.*', 'a.nama as nama_alternatif')
-            ->whereRaw('concat(p.tahun,p.bulan) = "' . $current_yearmonth . '"')
+            ->select(DB::raw('
+                hsa.*,
+                a.nama as nama_alternatif,
+                p.tahun,
+                CASE p.bulan 
+                    WHEN 01 THEN "Januari"
+                    WHEN 02 THEN "Februari"
+                    WHEN 03 THEN "Maret"
+                    WHEN 04 THEN "April"
+                    WHEN 05 THEN "Mei"
+                    WHEN 06 THEN "Juni"
+                    WHEN 07 THEN "Juli"
+                    WHEN 08 THEN "Agustus"
+                    WHEN 09 THEN "September"
+                    WHEN 10 THEN "Oktober"
+                    WHEN 11 THEN "November"
+                    WHEN 12 THEN "Desember"
+                END as string_bulan
+            '))
+            ->orderByRaw('concat(p.tahun,p.bulan) DESC')
             ->orderBy('hsa.nilai', 'desc')
             ->get();
+
+        $periode = $this->periodeService->getAll();
+
         return view('dashboard.penilaian.hasil', [
             'judul' => $judul,
             'hasil' => $hasil,
+            'periode' => $periode
         ]);
     }
 
@@ -202,18 +225,33 @@ class PenilaianController extends Controller
         return $pdf->stream();
     }
 
-    public function pdf_hasil()
+    public function pdf_hasil(Request $request)
     {
+        $this->validate($request, [
+            'periode_id' => 'required'
+        ]);
+
+        $periode_id = $request->periode_id;
         $judul = 'Laporan Hasil Akhir';
         $hasil = DB::table('hasil_solusi_ahp as hsa')
             ->join('alternatif as a', 'a.id', '=', 'hsa.alternatif_id')
             ->select('hsa.*', 'a.nama as nama_alternatif')
+            ->when($periode_id, function ($query, $periode_id) {
+                return $query->where('a.periode_id', $periode_id);
+            })
             ->orderBy('hsa.nilai', 'desc')
             ->get();
+
+        $periode = "Semua Periode";
+        if (!is_null($periode_id)) {
+            $periode_data = $this->periodeService->getDataById($periode_id);
+            $periode = $periode_data->string_bulan . ' ' . $periode_data->tahun;
+        }
 
         $pdf = PDF::setOptions(['defaultFont' => 'sans-serif'])->loadview('dashboard.pdf.hasil_akhir', [
             'judul' => $judul,
             'hasil' => $hasil,
+            'periode' => $periode,
         ]);
 
         // return $pdf->download('laporan-penilaian.pdf');

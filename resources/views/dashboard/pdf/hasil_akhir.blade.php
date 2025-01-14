@@ -5,6 +5,9 @@
         <h2 class="judul-laporan my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
             {{ $judul }}
         </h2>
+        <h3 class="judul-laporan my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+            {{ $periode }}
+        </h3>
     </div>
 
     <section class="mt-3">

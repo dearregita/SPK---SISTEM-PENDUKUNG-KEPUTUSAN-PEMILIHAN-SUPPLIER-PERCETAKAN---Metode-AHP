@@ -180,32 +180,32 @@
     <script>
         $(document).ready(function() {
             $('#tabel_data_alternatif').DataTable({
-                // responsive: true,
-                scrollX: true,
+                responsive: true,
+                // scrollX: true,
                 order: [],
             })
             .columns.adjust()
             .responsive.recalc();
 
             $('#tabel_data_kriteria').DataTable({
-                // responsive: true,
-                scrollX: true,
+                responsive: true,
+                // scrollX: true,
                 order: [],
             })
             .columns.adjust()
             .responsive.recalc();
 
             $('#tabel_data_sub_kriteria').DataTable({
-                // responsive: true,
-                scrollX: true,
+                responsive: true,
+                // scrollX: true,
                 order: [],
             })
             .columns.adjust()
             .responsive.recalc();
 
             $('#tabel_data_hasil').DataTable({
-                // responsive: true,
-                scrollX: true,
+                responsive: true,
+                // scrollX: true,
                 order: [],
             })
             .columns.adjust()
