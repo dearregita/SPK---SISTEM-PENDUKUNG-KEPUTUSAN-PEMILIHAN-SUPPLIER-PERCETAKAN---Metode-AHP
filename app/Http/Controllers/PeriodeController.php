@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PeriodeRequest;
 use App\Http\Services\PeriodeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeriodeController extends Controller
 {
@@ -81,6 +82,17 @@ class PeriodeController extends Controller
 
     public function simpan(PeriodeRequest $request)
     {
+        $check_periode = DB::table('periode')
+            ->where([
+                'tahun' => $request->tahun,
+                'bulan' => $request->bulan
+            ])
+            ->count();
+        
+        if ($check_periode == 1) {
+            return redirect('dashboard/periode')->with('gagal', 'Periode yang diinputkan sudah ada!');
+        }
+
         $data = $this->periodeService->simpanPostData($request);
         if (!$data[0]) {
             return redirect('dashboard/periode')->with('gagal', $data[1]);
@@ -96,6 +108,18 @@ class PeriodeController extends Controller
 
     public function perbarui(PeriodeRequest $request)
     {
+        $check_periode = DB::table('periode')
+            ->where([
+                'tahun' => $request->tahun,
+                'bulan' => $request->bulan
+            ])
+            ->where('id', '!=' , $request->id)
+            ->count();
+        
+        if ($check_periode == 1) {
+            return redirect('dashboard/periode')->with('gagal', 'Periode yang diinputkan sudah ada!');
+        }
+
         $data = $this->periodeService->perbaruiPostData($request);
         if (!$data[0]) {
             return redirect('dashboard/periode')->with('gagal', $data[1]);
